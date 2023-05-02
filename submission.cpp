@@ -112,14 +112,30 @@ int main() {
     };
     puzzlegen(sudoku);
     printpuzzle(sudoku);
+    int sudoku2[9][9];
+    for(int i = 0; i < 9; i++) {
+        for(int j = 0; j < 9; j++) sudoku2[i][j] = sudoku[i][j];
+    }
 
     auto start = chrono::high_resolution_clock::now();
     bool solved = bruteforce(sudoku);
     auto stop = chrono::high_resolution_clock::now();
     chrono::duration<double> secs = stop-start;
-    if(solved) {
-        printf("Puzzle appears to be unsolvable\n");
+    if(!solved) {
+        printf("Puzzle appears to be unsolvable via brute force after %lf seconds\n", secs.count());
+    } else {
+        printf("Puzzle solved with brute force in %lf seconds\n", secs.count());
+        printpuzzle(sudoku);
     }
-    printf("Puzzle solved in %lf seconds\n", secs.count());
-    printpuzzle(sudoku);
+
+    start = chrono::high_resolution_clock::now();
+    solved = backtrack(sudoku2, 0, 0);
+    stop = chrono::high_resolution_clock::now();
+    secs = stop-start;
+    if(!solved) {
+        printf("Puzzle appears to be unsolvable via backtracking after %lf seconds\n", secs.count());
+    } else {
+        printf("Puzzle solved with backtracking in %lf seconds\n", secs.count());
+        printpuzzle(sudoku);
+    }
 }
