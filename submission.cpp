@@ -56,12 +56,6 @@ bool backtrack(int puzzle[9][9], int row, int col) {
     return false;
 }
 
-bool verify(int puzzle[9][9]) { // Check grid to determine whether solutions are unique
-    int solutionCount = 0;
-    backtrack_uniq(puzzle, 0, 0, solutionCount);
-    return solutionCount == 1;
-}
-
 bool backtrack_uniq(int puzzle[9][9], int row, int col, int& solutionCount) {
     if (row == 8 && col == 9) {
         solutionCount++;
@@ -84,6 +78,12 @@ bool backtrack_uniq(int puzzle[9][9], int row, int col, int& solutionCount) {
         }
     }
     return true;
+}
+
+bool verify(int puzzle[9][9]) { // Check grid to determine whether solutions are unique
+    int solutionCount = 0;
+    backtrack_uniq(puzzle, 0, 0, solutionCount);
+    return solutionCount == 1;
 }
 
 bool bruteforce(int puzzle[9][9]) {
@@ -119,13 +119,16 @@ void puzzlegen(int sudoku[9][9]) {
             sudoku[i*3 + j%3][i*3 + j/3] = values[j];
         }
     }
-    backtrack(sudoku, 0, 3);
+    if (!verify(sudoku)) {
+        puzzlegen(sudoku);
+        return;
+    }
     for(int i = 0; i < 10; i++) {
         int rx = (rand() % 9);
         int ry = (rand() % 9);
         sudoku[rx][ry] = 0;
     }
-    // TODO: Check if sudoku has a unique solution
+    cout << "Unique puzzle generated." << endl;
 }
 
 int main() {
