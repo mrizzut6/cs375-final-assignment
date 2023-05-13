@@ -18,17 +18,17 @@ void printpuzzle(int puzzle[9][9]) {
 }
 
 bool solved(int puzzle[9][9]) {
-    int primes[9] = {2, 3, 5, 7, 11, 13, 17, 19, 23};
+    int digits[9] = {1, 2, 4, 8, 16, 32, 64, 128, 256};
     for(int i = 0; i < 9; i++) {
-        long prodrow = 1;
-        long prodcol = 1;
-        long prodsq = 1;
+        int orrow = 0;
+        int orcol = 0;
+        int orsq = 0;
         for(int j = 0; j < 9; j++) {
-            prodrow *= primes[puzzle[i][j]-1];
-            prodcol *= primes[puzzle[j][i]-1];
-            prodsq *= primes[puzzle[(3*i)%9 + (j%3)][(i/3)*3 + (j/3)]-1];
+            orrow = orrow | digits[puzzle[i][j]-1];
+            orcol = orcol | digits[puzzle[j][i]-1];
+            orsq = orsq | digits[puzzle[(3*i)%9 + (j%3)][(i/3)*3 + (j/3)]-1];
         }
-        if(prodrow != 223092870 || prodcol != 223092870 || prodsq != 223092870) return false;
+        if(orrow != 511 || orcol != 511 || orsq != 511) return false;
     }
     return true;
 }
