@@ -1,8 +1,1 @@
-Run with ./submission. This program currently generates a solvable Sudoku puzzle with 10 blank spaces, then solves it
-using a naive brute-force approach, then solves it again with backtracking. The original puzzle and both solutions are
-printed out (blank spaces are represented with 0). Brute-force and backtracking solutions are timed.
-
-TODO:
-- Make sure generated puzzles are unambiguous. This could be done by changing the backtrack function to return a number of solutions.
-- Add better user interface stuff (optional) - reading/writing puzzles to files, prompts to generate/solve, custom number of blank spaces.
-**********************************************************************************************************************
+Run with ./submission <blank-spaces> <backtrack>. This program generates a solvable Sudoku puzzle with a number of blank spaces defined by the user (9 if not specified), or as many blank spaces as possible to give an unambiguous solution. It then solves the puzzle using a naive brute-force approach, then again with backtracking. If the program is run with "backtrack", the brute-force approach is skipped (recommended with 10 or more blank spaces). The original puzzle and solution or solutions are printed out (blank spaces are represented with 0). Brute-force and backtracking solutions are timed.

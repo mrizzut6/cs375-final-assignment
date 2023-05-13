@@ -3,7 +3,10 @@
 #include <algorithm>
 #include <random>
 #include <chrono>
+#include <cstring>
 using namespace std;
+
+unsigned seed = chrono::high_resolution_clock::now().time_since_epoch().count();
 
 void printpuzzle(int puzzle[9][9]) {
     for(int i = 0; i < 9; i++) {
@@ -111,27 +114,44 @@ bool bruteforce(int puzzle[9][9]) {
     return true;
 }
 
-void puzzlegen(int sudoku[9][9]) {
+void puzzlegen(int sudoku[9][9], int totalBlanks) {
     int values[9] = {1, 2, 3, 4, 5, 6, 7, 8, 9};
+    default_random_engine engine(seed);
     for(int i = 0; i < 3; i++) {
-        shuffle(values, values + 9, default_random_engine());
+        shuffle(values, values + 9, engine);
         for(int j = 0; j < 9; j++) {
             sudoku[i*3 + j%3][i*3 + j/3] = values[j];
         }
     }
-    if (!verify(sudoku)) {
-        puzzlegen(sudoku);
-        return;
+    backtrack(sudoku, 0, 0);
+    int indices[81];
+    vector<int> removed;
+    for(int i = 0; i < 81; i++) indices[i] = i+1;
+    int blanks = 0;
+    int index = 0;
+    int solutionCount = 0;
+    shuffle(indices, indices + 81, engine);
+    while(blanks < totalBlanks && index < 81) {
+        solutionCount = 0;
+        int x = indices[index];
+        sudoku[x/9][x%9] = 0;
+        for(int i = 0; i < removed.size(); i++) sudoku[removed[i]/9][removed[i]%9] = 0;
+        backtrack_uniq(sudoku, 0, 0, solutionCount);
+        if(solutionCount == 1) {
+            removed.push_back(x);
+            blanks++;
+        }
+        index++;
     }
-    for(int i = 0; i < 10; i++) {
-        int rx = (rand() % 9);
-        int ry = (rand() % 9);
-        sudoku[rx][ry] = 0;
-    }
-    cout << "Unique puzzle generated." << endl;
+    for(int i = 0; i < removed.size(); i++) sudoku[removed[i]/9][removed[i]%9] = 0;
+    cout << "Unique puzzle generated.";
+    if(index == 81) cout << " Only " << removed.size() << " blank spaces are possible for a unique solution.";
+    cout << endl;
 }
 
-int main() {
+int main(int argc, char* argv[]) {
+    int totalBlanks = 9;
+    if(argc > 1) totalBlanks = atoi(argv[1]);
     int sudoku[9][9] = {
         {0, 0, 0, 0, 0, 0, 0, 0, 0},
         {0, 0, 0, 0, 0, 0, 0, 0, 0},
@@ -143,22 +163,30 @@ int main() {
         {0, 0, 0, 0, 0, 0, 0, 0, 0},
         {0, 0, 0, 0, 0, 0, 0, 0, 0}
     };
-    puzzlegen(sudoku);
+    puzzlegen(sudoku, totalBlanks);
     printpuzzle(sudoku);
     int sudoku2[9][9];
     for(int i = 0; i < 9; i++) {
         for(int j = 0; j < 9; j++) sudoku2[i][j] = sudoku[i][j];
     }
+    chrono::_V2::system_clock::time_point start;
+    chrono::_V2::system_clock::time_point stop;
+    bool solved;
+    chrono::duration<double> secs;
 
-    auto start = chrono::high_resolution_clock::now();
-    bool solved = bruteforce(sudoku);
-    auto stop = chrono::high_resolution_clock::now();
-    chrono::duration<double> secs = stop-start;
-    if(!solved) {
-        printf("Puzzle appears to be unsolvable via brute force after %lf seconds\n", secs.count());
+    if(argc == 3 && strcmp(argv[2], "backtrack") == 0) {
+        printf("Skipped brute force solution\n");
     } else {
-        printf("Puzzle solved with brute force in %lf seconds\n", secs.count());
-        printpuzzle(sudoku);
+        start = chrono::high_resolution_clock::now();
+        solved = bruteforce(sudoku);
+        stop = chrono::high_resolution_clock::now();
+        secs = stop-start;
+        if(!solved) {
+            printf("Puzzle appears to be unsolvable via brute force after %lf seconds\n", secs.count());
+        } else {
+            printf("Puzzle solved with brute force in %lf seconds\n", secs.count());
+            printpuzzle(sudoku);
+        }
     }
 
     start = chrono::high_resolution_clock::now();
