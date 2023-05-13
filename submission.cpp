@@ -56,6 +56,36 @@ bool backtrack(int puzzle[9][9], int row, int col) {
     return false;
 }
 
+bool verify(int puzzle[9][9]) { // Check grid to determine whether solutions are unique
+    int solutionCount = 0;
+    backtrack_uniq(puzzle, 0, 0, solutionCount);
+    return solutionCount == 1;
+}
+
+bool backtrack_uniq(int puzzle[9][9], int row, int col, int& solutionCount) {
+    if (row == 8 && col == 9) {
+        solutionCount++;
+        return solutionCount == 1;
+    }
+    if (col == 9) {
+        row++;
+        col = 0;
+    }
+    if (puzzle[row][col] > 0) {
+        return backtrack_uniq(puzzle, row, col + 1, solutionCount);
+    }
+    for (int i = 1; i <= 9; i++) {
+        if (valid(puzzle, row, col, i)) {
+            puzzle[row][col] = i;
+            if (!backtrack_uniq(puzzle, row, col + 1, solutionCount)) {
+                return false;
+            }
+            puzzle[row][col] = 0;
+        }
+    }
+    return true;
+}
+
 bool bruteforce(int puzzle[9][9]) {
     int spaces[81];
     int index = 0;
